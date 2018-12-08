@@ -33,6 +33,78 @@ paddleVel =  60   #how many pixels the paddles moves
 
 gameOver = False
 
+class Ball(pygame.sprite.Sprite) :
+
+    #Speed of ball in pixels per cycle
+    speed = 10.0
+
+    #Represents location of ball in floating points
+    x = 0.0
+    y = 180.0
+
+    #direction of ball (in degrees)
+    direction = 200
+
+    width = 10
+    height = 10
+
+    # Constructor. Pass in the color of the block, and its x and y position
+    def _init_(self) :
+
+        #Call the parent class (Sprite) constructor
+        super()._init_()
+
+        # Image of the ball being created 
+        self.image = pygame.Surface([self.width, self.height])
+
+        #Ball color
+        self.image.fill(white)
+
+        # Get a rectangle object that shows where our image is
+        self.rect = self.image.get_rect()
+
+        # Get attributes for the height/width of the screen
+        self.screenheight = pygame.display.get_surface().get_height()
+        self.screenwidth = pygame.display.get_surface().get_width()
+
+    def bounce(self, diff) : "This will bounce the ball off a horizontal surface but not a vertical one"
+
+        self.direction = (180 - self.direction) % 360
+        self.direction -= diff
+
+    def update(self) : "Update the position of the ball"
+
+        # Sine and Cosine converted from degrees
+        direction_radians = math.radians(self.direction)
+
+        # Change the position (x and y) according to the speed and direction
+        self.x += self.speed * math.sin(direction_radians)
+        self.y -= self.speed * math.cos(direction_radians)
+
+        # Move image to x and y
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        # Did the ball bounce off the top of the screen?
+        if self.y <= 0:
+            self.bounce(0)
+            self.y = 1
+            
+        # Did the ball bounce off the left of the screen?
+        if self.x <= 0:
+            self.direction = (360 - self.direction) % 360
+            self.x = 1
+
+        # the right of the screen?
+        if self.x > self.screenwidth - self.width:
+            self.direction = (360 - self.direction) % 360
+            self.x = self.screenwidth - self.width - 1
+            
+        # If the ball falls off the bottom of the screen
+        if self.y > 600:
+            return True
+        else:
+            return False
 create_bricks()
 while(not gameOver):
     pygame.time.delay(100)
