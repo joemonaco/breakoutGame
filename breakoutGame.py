@@ -7,8 +7,11 @@ window = pygame.display.set_mode((1080,720)) #set windows
 
 pygame.display.set_caption("Breakout")
 
-brickWidth   = 100
-brickHeight  = 30
+brickWidth = 100
+brickHeight = 30
+ball = pygame.Rect(300,660 - 16,16,16) # make a ball object
+
+ball_vel = [20,-20] #velcoties for the balll
 
 bricks = []
 def create_bricks():
@@ -25,6 +28,32 @@ def draw_bricks():
     for brick in bricks:
         pygame.draw.rect(window, (0,255,0), brick)
 
+
+
+#moves the ball
+def move_ball():
+    ball.left += ball_vel[0]
+    ball.top  += ball_vel[1]
+    
+    #checks the x position of the ball
+    if ball.left <= 0:
+        ball.left = 0
+        ball_vel[0] = -ball_vel[0]
+    elif ball.left >= 1060:
+        ball.left = 1060
+        ball_vel[0] = -ball_vel[0]
+    
+    #cehcks the y pistion of the ball
+    if ball.top < 0:
+        ball.top = 0
+        ball_vel[1] = -ball_vel[1]
+    elif ball.top >= 700:
+        ball.top = 700
+        ball_vel[1] = -ball_vel[1]
+
+
+
+
 paddleX = 540
 paddleY = 660
 paddleWidth = 100
@@ -33,78 +62,11 @@ paddleVel =  60   #how many pixels the paddles moves
 
 gameOver = False
 
-class Ball(pygame.sprite.Sprite) :
 
-    #Speed of ball in pixels per cycle
-    speed = 10.0
 
-    #Represents location of ball in floating points
-    x = 0.0
-    y = 180.0
 
-    #direction of ball (in degrees)
-    direction = 200
 
-    width = 10
-    height = 10
-
-    # Constructor. Pass in the color of the block, and its x and y position
-    def _init_(self) :
-
-        #Call the parent class (Sprite) constructor
-        super()._init_()
-
-        # Image of the ball being created 
-        self.image = pygame.Surface([self.width, self.height])
-
-        #Ball color
-        self.image.fill(white)
-
-        # Get a rectangle object that shows where our image is
-        self.rect = self.image.get_rect()
-
-        # Get attributes for the height/width of the screen
-        self.screenheight = pygame.display.get_surface().get_height()
-        self.screenwidth = pygame.display.get_surface().get_width()
-
-    def bounce(self, diff) : "This will bounce the ball off a horizontal surface but not a vertical one"
-
-        self.direction = (180 - self.direction) % 360
-        self.direction -= diff
-
-    def update(self) : "Update the position of the ball"
-
-        # Sine and Cosine converted from degrees
-        direction_radians = math.radians(self.direction)
-
-        # Change the position (x and y) according to the speed and direction
-        self.x += self.speed * math.sin(direction_radians)
-        self.y -= self.speed * math.cos(direction_radians)
-
-        # Move image to x and y
-        self.rect.x = self.x
-        self.rect.y = self.y
-
-        # Did the ball bounce off the top of the screen?
-        if self.y <= 0:
-            self.bounce(0)
-            self.y = 1
-            
-        # Did the ball bounce off the left of the screen?
-        if self.x <= 0:
-            self.direction = (360 - self.direction) % 360
-            self.x = 1
-
-        # the right of the screen?
-        if self.x > self.screenwidth - self.width:
-            self.direction = (360 - self.direction) % 360
-            self.x = self.screenwidth - self.width - 1
-            
-        # If the ball falls off the bottom of the screen
-        if self.y > 600:
-            return True
-        else:
-            return False
+paddle = pygame.Rect((paddleX, paddleY, paddleWidth, paddleHeight))
 create_bricks()
 while(not gameOver):
     pygame.time.delay(100)
@@ -119,9 +81,11 @@ while(not gameOver):
     if keys[pygame.K_LEFT]:
         paddleX = paddleX - paddleVel
 
-    
+
+    move_ball()
     window.fill((255,255,255)) # makes window white
     pygame.draw.rect(window, (255,0,0), (paddleX, paddleY, paddleWidth, paddleHeight)) #creates the paddle
+    pygame.draw.circle(window, (0,0,255), (ball.left + 8, ball.top + 8), 8) #draws the ball
     draw_bricks()
     pygame.display.update() #updates screen
 
