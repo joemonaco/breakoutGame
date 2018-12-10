@@ -78,6 +78,8 @@ while(not gameOver):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_RIGHT]:
         paddleX = paddleX + paddleVel
+        if paddleX > self.screenwidth - self.width:
+            paddleX = self.screenwidth - self.width
     if keys[pygame.K_LEFT]:
         paddleX = paddleX - paddleVel
 

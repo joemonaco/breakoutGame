@@ -188,7 +188,7 @@ balls.add(ball)
 top = 80
  
 # Number of blocks to create
-blockcount = 12
+blockcount = 32
  
 # --- Create blocks
  

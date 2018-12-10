@@ -2,7 +2,7 @@ import sys, pygame
 pygame.init()
 
 size = width, height = 1080, 720
-speed = [17, 20]
+speed = [10, 10]
 black = 0, 0, 0
 
 window = pygame.display.set_mode(size)
@@ -69,9 +69,11 @@ while not gameOver:
         #checks if left or right arrow key pressed
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
-            paddleX = paddleX + paddleVel
+            if not (paddle.right > 1030): # width of paddle added to screen dimension
+                paddleX = paddleX + paddleVel
         if keys[pygame.K_LEFT]:
-            paddleX = paddleX - paddleVel
+            if not (paddle.left < 50): # width of paddle added to screen dimension
+                paddleX = paddleX - paddleVel
 
         #bounces ball off paddle
         if ballrect.colliderect(paddle):
