@@ -107,6 +107,22 @@ powerUpDrop = False
 powerUpY = 200
 powerUpX = 500
 
+#possible powerups
+def extendPaddle():
+    paddleWidth = 200
+    paddleHeight = 30
+
+def shrinkPaddle():
+    paddleWidth = 60
+    paddleHeight = 30
+
+def fastBall():
+    speed = [12, 12]
+
+def slowBall():
+    speed = [5, 5]
+    
+
 def checkPowerUp():
 
     global chanceToAppear
@@ -129,7 +145,7 @@ def checkPowerUp():
         powerup.x = -100
         powerup.y = -100
         powerUpDrop = False
-        #if power = ... :
+        
     if powerup.y >= height:
         powerUpDrop = False
 
