@@ -1,4 +1,7 @@
 import sys, pygame
+import random
+
+
 pygame.init()
 
 size = width, height = 1080, 720
@@ -43,9 +46,16 @@ paddleVel =  60   #how many pixels the paddles moves
 
 create_bricks()
 
+Clock = pygame.time.Clock()
+chanceToAppear = 0.01
+powerUpDrop = False
+powerUpY = 200
+powerUpX = 500
 gameStart = False
 gameOver = False
+
 while not gameOver:
+    ticks = Clock.tick(60)
     #paddle = pygame.Rect(paddleX,paddleY,paddleWidth,paddleHeight)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -57,6 +67,23 @@ while not gameOver:
         if keys[pygame.K_SPACE]:
             gameStart = True
     else:
+        if random.random() < chanceToAppear and not powerUpDrop:
+            powerUpDrop = True
+            powerUpY = 200
+            powerUpX = random.randint(1, 1080)
+
+        if powerUpDrop:
+            powerup =  pygame.Rect(powerUpX,powerUpY,15,15)
+            powerUpY += 10
+        if powerup.colliderect(paddle) :
+            powerup.x = -100
+            powerup.y = -100
+            powerUpDrop = False
+            #if power = ... :
+        if powerup.y >= height:
+            powerUpDrop = False
+                
+            
         if score == len(bricks):
             print("YOU WIN!")
 
@@ -101,6 +128,7 @@ while not gameOver:
     window.fill((255,255,255))
     draw_bricks()
     pygame.draw.rect(window, (255,0,0), paddle) #creates the paddle
+    pygame.draw.rect(window, (200,167,98), powerup) #creates the powerup block
     window.blit(text, textpos)
     window.blit(ball, ballrect)
     pygame.display.flip()
