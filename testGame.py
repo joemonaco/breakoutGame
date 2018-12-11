@@ -4,9 +4,12 @@ import random
 
 
 pygame.init()
-
+pygame.mixer.music.load("bgMusic.wav")
 size = width, height = 1080, 720
 speed = [8, 8]
+
+
+#COLORS
 black = 0, 0, 0
 level1Color = 23,90,189
 level2Color = 190,204,0
@@ -130,7 +133,7 @@ def checkPowerUp():
     if powerup.y >= height:
         powerUpDrop = False
 
-
+brickBreak = pygame.mixer.Sound("brickBreak.wav")
 
 def checkBrickCollision():
     global score
@@ -141,6 +144,7 @@ def checkBrickCollision():
         if brick.colliderect(ballrect):
             speed[1] = -speed[1]
             if brickHits[i] == 1:
+                pygame.mixer.Sound.play(brickBreak)
                 bricks[i].x = -100
                 bricks[i].y = -100
                 score+= level
@@ -240,6 +244,7 @@ def runGame():
     global level
     global bricksBroken
     
+    pygame.mixer.music.play(-1)
     nextLevel = False
     gameStart = False
     gameOver = False
@@ -317,20 +322,18 @@ def runGame():
         pygame.display.flip()
 
     if nextLevel:
-        print("IN NEXT LEVEL")
         bricks.clear()
         brickHits.clear()
         create_bricks()
         runGame()
     else:
-        print("IN ELSE")
         bricksBroken = 0
         bricks.clear()
         brickHits.clear()
-        create_bricks()
         score = 0
         level = 1
         lifeCount = 3
+        create_bricks()
         gameOverMenu()
 
 mainMenu()
