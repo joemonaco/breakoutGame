@@ -102,6 +102,7 @@ def checkSidesCollision():
 
 
 Clock = pygame.time.Clock()
+
 chanceToAppear = 0.01
 powerUpDrop = False
 powerUpY = 200
@@ -136,7 +137,6 @@ fastColor = (102,0,204)
 slowColor = (255,255,255)
 powerupColors = [extendColor, shrinkColor, fastColor, slowColor]
 powerupIndex = 0
-
 def checkPowerUp():
 
     global chanceToAppear
@@ -147,7 +147,7 @@ def checkPowerUp():
     global paddle
     global powerUpActive
     global powerupIndex
-
+    global seconds
 
     if random.random() < chanceToAppear and not powerUpDrop and not powerUpActive:
         powerUpDrop = True
@@ -158,11 +158,12 @@ def checkPowerUp():
     if powerUpDrop:
         powerup =  pygame.Rect(powerUpX,powerUpY,15,15)
         powerUpY += 10
-
+        
     if powerup.colliderect(paddle) :
         powerup.x = -100
         powerup.y = -100
         powerUpActive = True
+        time = pygame.time.get_ticks()
         if powerupIndex == 0:
             extendPaddle()
         elif powerupIndex == 1:
@@ -250,6 +251,7 @@ def gameOverMenu():
     runGame()
 
 def mainMenu():
+
     global window
     mainMenu = True
 
@@ -277,6 +279,7 @@ def mainMenu():
 
 bricksBroken = 0
 paddle = pygame.Rect(paddleX,paddleY,paddleWidth,paddleHeight)
+start_ticks = pygame.time.get_ticks() #starter tick
 def runGame():
     global window
     global ballrect
@@ -287,14 +290,17 @@ def runGame():
     global level
     global bricksBroken
     global powerupIndex
-
+    global powerUpActive
 
     pygame.mixer.music.play(-1)
     nextLevel = False
     gameStart = False
     gameOver = False
+    timeTick = 0
     while not gameOver:
         ticks = Clock.tick(60)
+        # print("TICKS: ")
+        # print(ticks)
         paddle = pygame.Rect(paddleX,paddleY,paddleWidth,paddleHeight)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -312,7 +318,13 @@ def runGame():
                 ballrect.move(speed)
         else:
             checkPowerUp()
-                
+
+            if powerUpActive:
+                timeTick+=1
+                if timeTick > 10000:
+                    timeTick = 0
+                    powerUpActive = False
+                    print("DONE WITH POWERUP")
             if bricksBroken == len(bricks):
                 playerWins()
                 level+=1
