@@ -4,7 +4,7 @@ import random
 
 
 pygame.init()
-pygame.mixer.music.load("bgMusic.wav")
+# pygame.mixer.music.load("bgMusic.wav")
 size = width, height = 1080, 720
 speed = [8, 8]
 
@@ -39,7 +39,7 @@ paddleHeight = 30
 paddleVel =  22  #how many pixels the paddles moves
 
 score = 0
-
+powerUpString = ""
 powerup = pygame.Rect(0,0,15,15)
 
 bricks = []
@@ -112,21 +112,29 @@ powerUpX = 500
 def extendPaddle():
     global paddleWidth
     global paddleHeight
+    global powerUpString
+    powerUpString = "Extend Paddle!"
     paddleWidth = 200
     paddleHeight = 30
 
 def shrinkPaddle():
     global paddleWidth
     global paddleHeight
+    global powerUpString
+    powerUpString = "Shrink Paddle!"
     paddleWidth = 60
     paddleHeight = 30
 
 def fastBall():
+    global powerUpString
     global speed
+    powerUpString = "Faster Ball!"
     speed = [12, 12]
 
 def slowBall():
+    global powerUpString
     global speed
+    powerUpString = "Slower Ball!"
     speed = [5, 5]
 
 powerUpActive = False
@@ -177,7 +185,7 @@ def checkPowerUp():
     if powerup.y >= height:
         powerUpDrop = False
 
-brickBreak = pygame.mixer.Sound("meow.wav")
+# brickBreak = pygame.mixer.Sound("meow.wav")
 
 def checkBrickCollision():
     global score
@@ -188,7 +196,7 @@ def checkBrickCollision():
         if brick.colliderect(ballrect):
             speed[1] = -speed[1]
             if brickHits[i] == 1:
-                pygame.mixer.Sound.play(brickBreak)
+                # pygame.mixer.Sound.play(brickBreak)
                 bricks[i].x = -100
                 bricks[i].y = -100
                 score+= level
@@ -196,6 +204,16 @@ def checkBrickCollision():
             else:
                 brickHits[i]-=1
 
+
+def resetDefaults():
+    global speed
+    global paddleWidth
+    global paddleHeight
+    global powerUpString
+    powerUpString = ""
+    speed = [8,8]
+    paddleWidth = 100
+    paddleHeight = 30
 
 
 def showHearts():
@@ -291,8 +309,9 @@ def runGame():
     global bricksBroken
     global powerupIndex
     global powerUpActive
+    global powerUpString
 
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
     nextLevel = False
     gameStart = False
     gameOver = False
@@ -321,10 +340,12 @@ def runGame():
 
             if powerUpActive:
                 timeTick+=1
-                if timeTick > 10000:
+                print(timeTick)
+                if timeTick > 700:
                     timeTick = 0
                     powerUpActive = False
                     print("DONE WITH POWERUP")
+                    resetDefaults()
             if bricksBroken == len(bricks):
                 playerWins()
                 level+=1
@@ -359,10 +380,15 @@ def runGame():
 
         # font = pygame.font.Font(None, 36)
         font = pygame.font.Font('freesansbold.ttf',30)
-        text = font.render(str(score), 1, (0,0,0))
-        textpos = text.get_rect()
-        textpos.x = 500
-        textpos.y = 300
+        scoreText = font.render(str(score), 1, (0,0,0))
+        scoreTextpos = scoreText.get_rect()
+        scoreTextpos.x = 500
+        scoreTextpos.y = 300
+
+        powerUpText = font.render(str(powerUpString), 1, (0,0,0))
+        powerUpTextPos = powerUpText.get_rect()
+        powerUpTextPos.x = 500
+        powerUpTextPos.y = 400
 
         font = pygame.font.Font('freesansbold.ttf',30)
         TextSurf, TextRect = text_objects("Level " + str(level), font)
@@ -373,7 +399,8 @@ def runGame():
 
         window.blit(TextSurf, TextRect)
         window.blit(ball, ballrect)
-        window.blit(text,textpos)
+        window.blit(scoreText,scoreTextpos)
+        window.blit(powerUpText,powerUpTextPos)
         showHearts()
 
         pygame.display.flip()
@@ -384,6 +411,7 @@ def runGame():
         create_bricks()
         runGame()
     else:
+        powerUpActive = False
         bricksBroken = 0
         bricks.clear()
         brickHits.clear()
