@@ -109,19 +109,33 @@ powerUpX = 500
 
 #possible powerups
 def extendPaddle():
+    global paddleWidth
+    global paddleHeight
     paddleWidth = 200
     paddleHeight = 30
 
 def shrinkPaddle():
+    global paddleWidth
+    global paddleHeight
     paddleWidth = 60
     paddleHeight = 30
 
 def fastBall():
+    global speed
     speed = [12, 12]
 
 def slowBall():
+    global speed
     speed = [5, 5]
-    
+
+powerUpActive = False
+
+extendColor = (173,255,47)
+shrinkColor = (204,0,0)
+fastColor = (102,0,204)
+slowColor = (255,255,255)
+powerupColors = [extendColor, shrinkColor, fastColor, slowColor]
+powerupIndex = 0
 
 def checkPowerUp():
 
@@ -131,11 +145,15 @@ def checkPowerUp():
     global powerUpX
     global powerUpY
     global paddle
+    global powerUpActive
+    global powerupIndex
 
-    if random.random() < chanceToAppear and not powerUpDrop:
+
+    if random.random() < chanceToAppear and not powerUpDrop and not powerUpActive:
         powerUpDrop = True
         powerUpY = 200
         powerUpX = random.randint(1, 1080)
+        powerupIndex = random.randint(0,3)
 
     if powerUpDrop:
         powerup =  pygame.Rect(powerUpX,powerUpY,15,15)
@@ -144,12 +162,21 @@ def checkPowerUp():
     if powerup.colliderect(paddle) :
         powerup.x = -100
         powerup.y = -100
+        powerUpActive = True
+        if powerupIndex == 0:
+            extendPaddle()
+        elif powerupIndex == 1:
+            shrinkPaddle()
+        elif powerupIndex == 2:
+            fastBall()
+        elif powerupIndex == 3:
+            slowBall()
         powerUpDrop = False
         
     if powerup.y >= height:
         powerUpDrop = False
 
-brickBreak = pygame.mixer.Sound("brickBreak.wav")
+brickBreak = pygame.mixer.Sound("meow.wav")
 
 def checkBrickCollision():
     global score
@@ -259,7 +286,9 @@ def runGame():
     global paddle
     global level
     global bricksBroken
-    
+    global powerupIndex
+
+
     pygame.mixer.music.play(-1)
     nextLevel = False
     gameStart = False
@@ -328,7 +357,7 @@ def runGame():
         TextRect.center = ((width - 70),(15))
 
         pygame.draw.rect(window, black, paddle) #creates the paddle
-        pygame.draw.rect(window, (200,200,200), powerup) #creates the powerup block
+        pygame.draw.rect(window, powerupColors[powerupIndex], powerup) #creates the powerup block
 
         window.blit(TextSurf, TextRect)
         window.blit(ball, ballrect)
