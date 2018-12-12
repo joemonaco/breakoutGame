@@ -6,12 +6,12 @@ from time import sleep
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
-GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #LEFT BTN
+GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #RIGHT BTN
+GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #ENTER BTN
 
 pygame.init()
-pygame.mixer.music.load("bgMusic.wav")
+# pygame.mixer.music.load("bgMusic.wav")
 size = width, height = 1080, 720
 speed = [8, 8]
 
@@ -46,7 +46,7 @@ paddleHeight = 30
 paddleVel =  22  #how many pixels the paddles moves
 
 score = 0
-
+powerUpString = ""
 powerup = pygame.Rect(0,0,15,15)
 
 bricks = []
@@ -109,6 +109,7 @@ def checkSidesCollision():
 
 
 Clock = pygame.time.Clock()
+
 chanceToAppear = 0.01
 powerUpDrop = False
 powerUpY = 200
@@ -118,21 +119,29 @@ powerUpX = 500
 def extendPaddle():
     global paddleWidth
     global paddleHeight
+    global powerUpString
+    powerUpString = "Extend Paddle!"
     paddleWidth = 200
     paddleHeight = 30
 
 def shrinkPaddle():
     global paddleWidth
     global paddleHeight
+    global powerUpString
+    powerUpString = "Shrink Paddle!"
     paddleWidth = 60
     paddleHeight = 30
 
 def fastBall():
+    global powerUpString
     global speed
+    powerUpString = "Faster Ball!"
     speed = [12, 12]
 
 def slowBall():
+    global powerUpString
     global speed
+    powerUpString = "Slower Ball!"
     speed = [5, 5]
 
 powerUpActive = False
@@ -143,7 +152,6 @@ fastColor = (102,0,204)
 slowColor = (255,255,255)
 powerupColors = [extendColor, shrinkColor, fastColor, slowColor]
 powerupIndex = 0
-
 def checkPowerUp():
 
     global chanceToAppear
@@ -154,7 +162,7 @@ def checkPowerUp():
     global paddle
     global powerUpActive
     global powerupIndex
-
+    global seconds
 
     if random.random() < chanceToAppear and not powerUpDrop and not powerUpActive:
         powerUpDrop = True
@@ -165,11 +173,12 @@ def checkPowerUp():
     if powerUpDrop:
         powerup =  pygame.Rect(powerUpX,powerUpY,15,15)
         powerUpY += 10
-
+        
     if powerup.colliderect(paddle) :
         powerup.x = -100
         powerup.y = -100
         powerUpActive = True
+        time = pygame.time.get_ticks()
         if powerupIndex == 0:
             extendPaddle()
         elif powerupIndex == 1:
@@ -183,7 +192,7 @@ def checkPowerUp():
     if powerup.y >= height:
         powerUpDrop = False
 
-brickBreak = pygame.mixer.Sound("brickBreak.wav")
+# brickBreak = pygame.mixer.Sound("meow.wav")
 
 def checkBrickCollision():
     global score
@@ -194,7 +203,7 @@ def checkBrickCollision():
         if brick.colliderect(ballrect):
             speed[1] = -speed[1]
             if brickHits[i] == 1:
-                pygame.mixer.Sound.play(brickBreak)
+                # pygame.mixer.Sound.play(brickBreak)
                 bricks[i].x = -100
                 bricks[i].y = -100
                 score+= level
@@ -202,6 +211,16 @@ def checkBrickCollision():
             else:
                 brickHits[i]-=1
 
+
+def resetDefaults():
+    global speed
+    global paddleWidth
+    global paddleHeight
+    global powerUpString
+    powerUpString = ""
+    speed = [8,8]
+    paddleWidth = 100
+    paddleHeight = 30
 
 
 def showHearts():
@@ -250,13 +269,14 @@ def gameOverMenu():
         window.blit(TextSurf, TextRect)
         window.blit(enterSurf, enterRect)
         keys = pygame.key.get_pressed()
-        if GPIO.input(29):
+        if keys[pygame.K_RETURN]:
             playAgain = True
         pygame.display.update()
 
     runGame()
 
 def mainMenu():
+
     global window
     mainMenu = True
 
@@ -284,6 +304,7 @@ def mainMenu():
 
 bricksBroken = 0
 paddle = pygame.Rect(paddleX,paddleY,paddleWidth,paddleHeight)
+start_ticks = pygame.time.get_ticks() #starter tick
 def runGame():
     global window
     global ballrect
@@ -294,14 +315,18 @@ def runGame():
     global level
     global bricksBroken
     global powerupIndex
+    global powerUpActive
+    global powerUpString
 
-
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
     nextLevel = False
     gameStart = False
     gameOver = False
+    timeTick = 0
     while not gameOver:
         ticks = Clock.tick(60)
+        # print("TICKS: ")
+        # print(ticks)
         paddle = pygame.Rect(paddleX,paddleY,paddleWidth,paddleHeight)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -319,7 +344,15 @@ def runGame():
                 ballrect.move(speed)
         else:
             checkPowerUp()
-                
+
+            if powerUpActive:
+                timeTick+=1
+                print(timeTick)
+                if timeTick > 700:
+                    timeTick = 0
+                    powerUpActive = False
+                    print("DONE WITH POWERUP")
+                    resetDefaults()
             if bricksBroken == len(bricks):
                 playerWins()
                 level+=1
@@ -354,10 +387,15 @@ def runGame():
 
         # font = pygame.font.Font(None, 36)
         font = pygame.font.Font('freesansbold.ttf',30)
-        text = font.render(str(score), 1, (0,0,0))
-        textpos = text.get_rect()
-        textpos.x = 500
-        textpos.y = 300
+        scoreText = font.render(str(score), 1, (0,0,0))
+        scoreTextpos = scoreText.get_rect()
+        scoreTextpos.x = 500
+        scoreTextpos.y = 300
+
+        powerUpText = font.render(str(powerUpString), 1, (0,0,0))
+        powerUpTextPos = powerUpText.get_rect()
+        powerUpTextPos.x = 500
+        powerUpTextPos.y = 400
 
         font = pygame.font.Font('freesansbold.ttf',30)
         TextSurf, TextRect = text_objects("Level " + str(level), font)
@@ -368,24 +406,22 @@ def runGame():
 
         window.blit(TextSurf, TextRect)
         window.blit(ball, ballrect)
-        window.blit(text,textpos)
+        window.blit(scoreText,scoreTextpos)
+        window.blit(powerUpText,powerUpTextPos)
         showHearts()
 
         pygame.display.flip()
 
     if nextLevel:
-        # bricks.clear()
-        # brickHits.clear()
-        del bricks[:]
-        del brickHits[:]
+        bricks.clear()
+        brickHits.clear()
         create_bricks()
         runGame()
     else:
+        powerUpActive = False
         bricksBroken = 0
-        # bricks.clear()
-        # brickHits.clear()
-        del bricks[:]
-        del brickHits[:]
+        bricks.clear()
+        brickHits.clear()
         score = 0
         level = 1
         lifeCount = 3
