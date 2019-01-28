@@ -11,7 +11,7 @@ GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #RIGHT BTN
 GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #ENTER BTN
 
 pygame.init()
-# pygame.mixer.music.load("bgMusic.wav")
+pygame.mixer.music.load("bgMusic.wav")
 size = width, height = 1080, 720
 speed = [8, 8]
 
@@ -192,7 +192,7 @@ def checkPowerUp():
     if powerup.y >= height:
         powerUpDrop = False
 
-brickBreak = pygame.mixer.Sound("bg.wav")
+brickBreak = pygame.mixer.Sound("breakBrick.wav")
 
 def checkBrickCollision():
     global score
