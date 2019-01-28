@@ -192,7 +192,7 @@ def checkPowerUp():
     if powerup.y >= height:
         powerUpDrop = False
 
-# brickBreak = pygame.mixer.Sound("meow.wav")
+brickBreak = pygame.mixer.Sound("bg.wav")
 
 def checkBrickCollision():
     global score
@@ -203,7 +203,7 @@ def checkBrickCollision():
         if brick.colliderect(ballrect):
             speed[1] = -speed[1]
             if brickHits[i] == 1:
-                # pygame.mixer.Sound.play(brickBreak)
+                pygame.mixer.Sound.play(brickBreak)
                 bricks[i].x = -100
                 bricks[i].y = -100
                 score+= level
